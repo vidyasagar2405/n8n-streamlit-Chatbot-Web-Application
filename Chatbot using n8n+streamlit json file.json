@@ -1,0 +1,160 @@
+{
+  "name": "Chatgpt styled Chatbot using n8n+streamlit",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "5ec4cd11-ac28-4ba6-8b5a-8c552fcadd8a",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -96,
+        -32
+      ],
+      "id": "f49d25f0-1ed5-4c05-85ed-60bebc9333ae",
+      "name": "Webhook",
+      "webhookId": "5ec4cd11-ac28-4ba6-8b5a-8c552fcadd8a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=The user says:\n“{{ $json.body.prompt }}”\n\nPlease understand their question and give the most accurate, helpful response.",
+        "options": {
+          "systemMessage": "=You are an intelligent, helpful, and accurate AI assistant integrated into an n8n workflow and accessed through a Streamlit frontend.\nYour job is to understand the user's input, answer clearly, provide correct information, and avoid hallucinating.\nWhen users ask for code, give clean and correct code.\nWhen they ask for explanations, keep them simple and actionable.\nIf a question lacks details, ask follow-ups instead of guessing.\nAlways return responses in plain text unless the user explicitly asks for formatting.\nStore the past conversation with user and give interactions to user."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        96,
+        -32
+      ],
+      "id": "c2e6f559-1189-46c2-9c71-3273609014ea",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "f549fd06-5907-43f6-840c-d3f4fa4fb665",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        176
+      ],
+      "id": "8d7718c8-7a11-4ad4-959b-375c6f223dbd",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "F7dMD32h4Ra87ZnG",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.webhookUrl }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        112,
+        176
+      ],
+      "id": "585794e3-a444-4a68-bda9-d83775ecd54c",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "content": "## **Chatbot workflow using Gemini LLM**",
+        "height": 464,
+        "width": 944,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "ca46ddcb-4103-49c9-9802-01d3db92eb77",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "8ee1882a-9146-4cfb-ac3c-d3566035eb5a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e10e01aa05f7ff3fb236fdf437e39ab55031617216bdc6b00455ccbf3bd29aef"
+  },
+  "id": "au13QxoU9rIWblI1",
+  "tags": []
+}
